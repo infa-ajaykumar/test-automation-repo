@@ -1,0 +1,16 @@
+# Example configuration for Product A - Functional Tests
+target_url: "https://jenkins.example.com/job/productA/job/runFunctionalTests"
+http_method: "POST" # Or GET, depending on the target API
+
+# Default parameters that will be sent with the request.
+# These can be supplemented or overridden by workflow inputs if needed.
+default_parameters:
+  suite_id: "functional_v1"
+  timeout_minutes: 60
+  notification_email: "dev-team-a@example.com"
+
+# Mapping of header names (or parameter names for body/query) to environment variable names
+# The workflow will look up these environment variables and use their values.
+credential_env_keys:
+  Authorization: "PRODUCT_A_AUTH_TOKEN" # Workflow will look for os.getenv("PRODUCT_A_AUTH_TOKEN")
+  X-Custom-Header: "PRODUCT_A_CUSTOM_HEADER_VALUE"

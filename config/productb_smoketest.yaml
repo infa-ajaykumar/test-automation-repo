@@ -1,0 +1,17 @@
+# Example configuration for Product B - Smoke Tests
+target_url: "https://api.productb.com/v2/trigger-smoke-suite"
+http_method: "POST"
+
+default_parameters:
+  test_level: "smoke"
+  priority: "high"
+  # Example: if the API expects user/pass in the body (less common for API tokens)
+  # username_param: "user" # If the API takes username in a field named "user"
+  # password_param: "pass" # If the API takes password in a field named "pass"
+
+credential_env_keys:
+  # Example: API token sent as a bearer token
+  Authorization: "PRODUCT_B_API_TOKEN"
+  # Example: If credentials need to be passed as specific parameter names in the JSON body
+  # This is just illustrative; typically auth is via headers.
+  # "api_key_body_param": "PRODUCT_B_API_KEY_ENV_VAR" # Workflow would need to merge this into params

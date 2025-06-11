@@ -1,0 +1,41 @@
+.App {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  text-align: center;
+  font-family: sans-serif;
+  background-color: #f4f7f6; /* Light background for the whole page */
+}
+
+.App-header {
+  background-color: #282c34;
+  padding: 20px 30px; /* Slightly more padding */
+  color: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Subtle shadow */
+}
+
+.App-header h1 {
+    margin: 0; /* Remove default h1 margin */
+    font-size: 1.8em; /* Adjust size */
+}
+
+main {
+  flex-grow: 1; /* Allows main content to expand */
+  padding: 20px; /* Padding around the content within main */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; /* Align content to the top */
+  width: 100%; /* Ensure main takes full width */
+  box-sizing: border-box; /* Include padding in width calculation */
+}
+
+.App-footer {
+  background-color: #e9ecef; /* Lighter footer */
+  padding: 15px; /* More padding */
+  text-align: center;
+  font-size: 0.9em;
+  color: #6c757d; /* Softer text color */
+  margin-top: auto; /* Pushes footer to the bottom */
+  border-top: 1px solid #dee2e6; /* Subtle top border */
+}
