@@ -1,0 +1,13 @@
+# Products
+- id: "product_a"
+  name: "Product Alpha"
+  description: "Manages customer data and analytics."
+  test_suites:
+    - "suite_login"
+    - "suite_data_processing"
+- id: "product_b"
+  name: "Product Beta"
+  description: "Provides real-time collaboration tools."
+  test_suites:
+    - "suite_login"
+    - "suite_collaboration_realtime"

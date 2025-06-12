@@ -1,0 +1,3 @@
+temporalio
+PyYAML
+httpx # For making HTTP requests in the activity

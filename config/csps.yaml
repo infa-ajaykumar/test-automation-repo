@@ -1,0 +1,7 @@
+# Cloud Service Providers
+- id: "aws"
+  name: "Amazon Web Services"
+- id: "azure"
+  name: "Microsoft Azure"
+- id: "gcp"
+  name: "Google Cloud Platform"
