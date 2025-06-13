@@ -1,0 +1,90 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  temporal:
+    image: temporalio/auto-setup:1.21.0 # Use a version compatible with your SDK if issues arise
+    ports:
+      - "7233:7233" # gRPC frontend
+      - "8233:8233" # Web UI (optional, but useful)
+    environment:
+      - DB=sqlite3 # Using sqlite for simplicity, can switch to postgresql
+      - TEMPORAL_BROADCAST_ADDRESS=temporal # For server to advertise itself within docker network
+      # Add other Temporal server env vars if needed
+    volumes:
+      - temporal_sqlite_data:/data # Persist sqlite data
+    # healthcheck: # Basic healthcheck
+    #   test: ["CMD", "temporal", "operator", "cluster", "health"]
+    #   interval: 5s
+    #   timeout: 5s
+    #   retries: 5
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # For local development, point to the backend service in docker-compose
+        # This assumes the API is accessed directly, not through frontend Nginx proxy for /api
+        REACT_APP_API_BASE_URL: http://localhost:8000
+    ports:
+      - "3000:80" # Expose frontend Nginx (running on port 80 in container) to host port 3000
+    depends_on:
+      - backend
+    # volumes: # For local dev, could mount src for live reload if dev server is used in Dockerfile
+    #   - ./frontend/src:/app/src
+
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000" # Expose backend FastAPI app to host port 8000
+    environment:
+      - APP_SECRET_KEY=a_super_secret_key_for_docker_compose_change_me_for_real_dev
+      - TEMPORAL_SERVER_ADDRESS=temporal:7233 # Points to the temporal service name
+      # Add other backend env vars if any (e.g., database URLs if not using sqlite in-app)
+    volumes:
+      - ./config:/app/config:ro # Mount config directory as read-only
+    depends_on:
+      temporal:
+        condition: service_started
+
+  worker:
+    build: ./worker
+    environment:
+      - TEMPORAL_SERVER_ADDRESS=temporal:7233
+      # SMTP and Notification Service API Keys/Webhooks (examples - REPLACE THESE)
+      - SMTP_HOST=mailhog # Example: using a MailHog container for local email testing
+      - SMTP_PORT=1025
+      - SMTP_USER=
+      - SMTP_PASSWORD=
+      - SMTP_SENDER_EMAIL=worker@example.com
+      - SMTP_USE_TLS=false
+      - TEAMS_WEBHOOK_GENERAL_ALERTS=YOUR_TEAMS_WEBHOOK_URL_ENV_VAR_VALUE # Placeholder
+      - OPSGENIE_DEFAULT_API_KEY=YOUR_OPSGENIE_API_KEY_ENV_VAR_VALUE # Placeholder
+      # Example credential_keys mapping for test suites (from test_suites.yaml)
+      # If suite 'suite_login' has worker_config.credential_keys: {"JENKINS_TOKEN": "PROD_A_LOGIN_JENKINS_TOKEN_VAR"}
+      # You would set:
+      - PROD_A_LOGIN_JENKINS_TOKEN_VAR=ACTUAL_JENKINS_TOKEN_FOR_LOGIN_TESTS_HERE
+      # For 'suite_data_processing' with {"PRODUCT_A_API_KEY": "PROD_A_API_KEY_ENV_VAR"}
+      - PROD_A_API_KEY_ENV_VAR=ACTUAL_PRODUCT_A_API_KEY_VALUE_HERE
+      # Add all other ENV VARS required by your config/test_suites.yaml credential_keys and notifications
+    volumes:
+      - ./config:/app/config:ro # Mount config directory as read-only
+    depends_on:
+      temporal:
+        condition: service_started
+      # backend: # Worker does not directly call backend API, so direct dependency not strictly needed for startup.
+      #   condition: service_started
+
+# Optional: Add MailHog for local email testing
+  mailhog:
+    image: mailhog/mailhog:latest
+    ports:
+      - "1025:1025" # SMTP server
+      - "8025:8025" # Web UI
+
+volumes:
+  temporal_sqlite_data: # Define the named volume for Temporal SQLite persistence
+
+# To run: docker-compose up --build
+# To run in detached mode: docker-compose up --build -d
+# To stop: docker-compose down

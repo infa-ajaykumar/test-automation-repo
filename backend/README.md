@@ -21,12 +21,9 @@ This directory contains the FastAPI backend for the Test Orchestration platform.
     The API will be available at `http://localhost:8000`. You can access the OpenAPI documentation at `http://localhost:8000/docs`.
 
 ## Authentication
+The backend uses JWT-based authentication. The initial admin user is `admin` with password `adminpassword`. Other users can be registered via the `/users/register` endpoint.
 
-A dummy `/token` endpoint is available for initial testing.
-- Username: `testuser`
-- Password: `password` (this is plaintext for now and will be replaced)
-
-Use the token obtained from `/token` as a Bearer token in the Authorization header for protected endpoints like `/api/v1/configs/*`.
+Use the token obtained from `/token` as a Bearer token in the Authorization header for protected endpoints.
 
 ## Testing Temporal Integration
 
@@ -43,3 +40,9 @@ This script will attempt to:
 - Attempt to fetch a non-existent configuration file to check error handling.
 - Fetch the configuration for `suite_login` via `TestSuiteConfigWorkflow`.
 - Attempt to fetch a non-existent test suite to check error handling.
+
+## Security
+
+- **JWT Secret Key**: The `APP_SECRET_KEY` environment variable **MUST** be set in production for secure JWT signing. See the main project README's "Security Considerations" section for more details.
+- **HTTPS**: In production, run this FastAPI application behind a reverse proxy that handles TLS termination and enforces HTTPS.
+- **Input Validation**: Pydantic models provide automatic request data validation. Ensure new endpoints also validate inputs thoroughly.
