@@ -1,0 +1,7 @@
+# Deployment Environments
+- id: "dev"
+  name: "Development"
+- id: "staging"
+  name: "Staging"
+- id: "prod"
+  name: "Production"

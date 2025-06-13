@@ -1,0 +1,142 @@
+.App {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.App-header {
+  background-color: #282c34;
+  padding: 15px 30px;
+  color: white;
+  display: flex;
+  align-items: center;
+}
+
+.App-header h1 { /* Assuming the Test Orchestrator title is an h1 inside the Link */
+  margin: 0;
+  font-size: 1.5em;
+}
+
+.App-header nav {
+  display: flex;
+  align-items: center;
+  margin-left: auto; /* Pushes nav to the right */
+}
+
+.nav-link {
+  color: # C0C0C0; /* Light gray for nav links */
+  margin-right: 15px;
+  text-decoration: none;
+  padding: 5px 0;
+  border-bottom: 2px solid transparent; /* For hover effect */
+  transition: color 0.2s ease, border-bottom-color 0.2s ease;
+}
+
+.nav-link:hover,
+.nav-link.active { /* Add .active class with NavLink if used for active state */
+  color: white;
+  border-bottom-color: #61dafb; /* React blue or similar accent */
+}
+
+.nav-link.admin-link { /* Specific style for admin link if needed */
+  /* Example: color: #ffc107; */
+}
+
+.logout-button {
+  background-color: #dc3545; /* Red for logout */
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.logout-button:hover {
+  background-color: #c82333; /* Darker red on hover */
+}
+
+
+.App-content {
+  flex-grow: 1;
+  padding: 20px;
+  background-color: #ffffff;
+}
+
+pre {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 5px;
+  border: 1px solid #dee2e6;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.2s ease-in-out;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  table-layout: fixed;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 10px 8px;
+  text-align: left;
+  word-break: break-word;
+}
+
+th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+textarea, /* Added textarea */
+select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 1em;
+}
+
+form button {
+  margin-top: 10px;
+}

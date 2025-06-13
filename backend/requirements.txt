@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+pydantic
+PyYAML
+python-multipart
+temporalio
+passlib[bcrypt]
+PyJWT # For JWT encoding/decoding
+httpx # For potential direct HTTP calls or consistency

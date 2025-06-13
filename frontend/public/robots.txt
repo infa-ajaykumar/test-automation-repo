@@ -1,0 +1,8 @@
+# See https://www.robotstxt.org/robotstxt.html for documentation on how to use the robots.txt file
+#
+# A robot should obey at least one from a group of User-agent records. A User-agent record starts
+# with a User-agent line and is followed by Disallow or Allow lines. An empty Disallow line means
+# that the robot can access all URLs on the site.
+
+User-agent: *
+Disallow:

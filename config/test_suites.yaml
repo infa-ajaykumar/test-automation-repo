@@ -1,0 +1,87 @@
+# Test Suites
+- id: "suite_login"
+  name: "Login and Authentication Tests"
+  description: "Tests user login, logout, and session management."
+  product_ids: ["product_a", "product_b"] # Optional: link back to products if needed for filtering
+  inputs:
+    - name: "csp"
+      label: "Cloud Provider"
+      type: "dropdown" # UI hint
+      source: "csps.yaml" # Reference to another config file for options
+      required: true
+    - name: "region"
+      label: "Region"
+      type: "dropdown"
+      source: "regions.yaml" # Options filtered by selected CSP
+      required: true
+      depends_on: "csp" # UI can use this to filter regions based on CSP
+    - name: "environment"
+      label: "Environment"
+      type: "dropdown"
+      source: "environments.yaml"
+      required: true
+    - name: "username"
+      label: "Test Username"
+      type: "text"
+      required: true
+      default_value: "testuser"
+  worker_config:
+    type: "http_post" # Indicates how the worker should execute this
+    target_url_template: "https://jenkins.example.com/job/{product_id}/job/{suite_id}/buildWithParameters"
+    payload_template: # How to construct the JSON payload for the POST request
+      TOKEN: "{SECRET:JENKINS_TOKEN}" # Special syntax for secrets
+      USERNAME: "{username}"
+      DEPLOY_ENV: "{environment}"
+      CLOUD_REGION: "{region}"
+    credential_keys: # Environment variables the worker needs
+      JENKINS_TOKEN: "SPECIFIC_PRODUCT_A_TOKEN_KEY_FOR_LOGIN_TESTS" # Example: env var name for worker
+  schedule_options:
+    allow_manual: true
+    allow_periodic: true # e.g., daily, weekly
+    allow_event_driven: false # e.g., on code commit (future)
+
+- id: "suite_data_processing"
+  name: "Data Processing Pipeline Test"
+  description: "Tests the end-to-end data processing pipeline for Product Alpha."
+  product_ids: ["product_a"]
+  inputs:
+    - name: "csp"
+      label: "Cloud Provider"
+      type: "dropdown"
+      source: "csps.yaml"
+      required: true
+    - name: "region"
+      label: "Region"
+      type: "dropdown"
+      source: "regions.yaml"
+      required: true
+      depends_on: "csp"
+    - name: "environment"
+      label: "Environment"
+      type: "dropdown"
+      source: "environments.yaml"
+      required: true
+    - name: "dataset_size"
+      label: "Dataset Size (GB)"
+      type: "number"
+      required: true
+      default_value: 100
+    - name: "pod_id" # Optional pod example
+      label: "Target Pod (Optional)"
+      type: "text"
+      required: false
+  worker_config:
+    type: "http_post"
+    target_url_template: "https://api.internal.example.com/product_a/run_data_processing"
+    payload_template:
+      API_KEY: "{SECRET:PRODUCT_A_API_KEY}"
+      DATASET_SIZE: "{dataset_size}"
+      TARGET_ENV: "{environment}"
+      REGION: "{region}"
+      POD_ID: "{pod_id}"
+    credential_keys:
+      PRODUCT_A_API_KEY: "PRODUCT_A_PROCESSING_API_KEY"
+  schedule_options:
+    allow_manual: true
+    allow_periodic: true
+    allow_event_driven: true
