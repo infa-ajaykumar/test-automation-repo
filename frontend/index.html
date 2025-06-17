@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Registry & Chat</title>
+    <link rel="stylesheet" href="style.css"> <!-- Assuming a style.css might be added later -->
+    <style>
+        body { font-family: sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; color: #333; }
+        .container { width: 90%; margin: 20px auto; background-color: #fff; padding: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1, h2 { color: #333; }
+        .model-item { margin-bottom: 15px; padding: 10px; border: 1px solid #eee; border-radius: 5px; }
+        .model-status { margin-left: 10px; font-style: italic; color: #555; }
+        button { padding: 8px 15px; background-color: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:disabled { background-color: #ccc; cursor: not-allowed; }
+        hr { margin: 20px 0; border: 0; border-top: 1px solid #eee; }
+
+        /* Chat Interface Specific Styles */
+        #chat-interface-section { margin-top: 30px; }
+        #chat-model-select, #chat-prompt-input, #chat-send-button {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 3px;
+            border: 1px solid #ddd;
+        }
+        #chat-model-select { width: 100%; }
+        #chat-prompt-input { width: calc(100% - 22px); /* Account for padding/border */ display: block; resize: vertical; }
+        #chat-send-button { width: 100%; background-color: #28a745; }
+        #chat-history-container {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+        }
+        .chat-message { padding: 8px; margin-bottom: 8px; border-radius: 5px; line-break: anywhere; }
+        .chat-message-user { background-color: #007bff; color: white; text-align: right; margin-left: auto; max-width: 70%; }
+        .chat-message-model { background-color: #e9ecef; color: #333; text-align: left; margin-right: auto; max-width: 70%; }
+        #chat-error-message-container { color: red; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Available LLM Models</h1>
+        <div id="error-message-container" style="color: red;"></div>
+        <div id="models-list-container">
+            <!-- Available models will be loaded here by script.js -->
+        </div>
+
+        <hr>
+
+        <h2>Downloaded Models</h2>
+        <div id="downloaded-models-list-container">
+            <!-- Downloaded models will be loaded here by script.js -->
+        </div>
+
+        <hr>
+
+        <section id="chat-interface-section">
+            <h2>Chat Interface</h2>
+            <div>
+                <label for="chat-model-select">Select Model for Chat:</label>
+                <select id="chat-model-select">
+                    <option value="">-- Select a downloaded & compatible model --</option>
+                </select>
+            </div>
+            <div id="chat-history-container">
+                <!-- Chat messages will appear here -->
+            </div>
+            <div>
+                <textarea id="chat-prompt-input" rows="3" placeholder="Type your message..."></textarea>
+                <button id="chat-send-button">Send</button>
+            </div>
+            <div id="chat-error-message-container"></div>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

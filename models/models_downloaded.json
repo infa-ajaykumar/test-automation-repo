@@ -1,0 +1,11 @@
+[
+  {
+    "id": "distilgpt2-test",
+    "name": "DistilGPT-2 (Test)",
+    "file_name": "distilgpt2-test",
+    "path": "models/distilgpt2-test",
+    "download_date": "2024-01-01T00:00:00Z",
+    "status": "completed",
+    "url": "distilgpt2"
+  }
+]
