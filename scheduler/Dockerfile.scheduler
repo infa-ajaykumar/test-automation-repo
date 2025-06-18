@@ -1,0 +1,20 @@
+# Use an official Alpine image as a base
+FROM alpine:latest
+
+# Install Docker CLI, bash, and other utilities
+RUN apk add --no-cache docker-cli bash coreutils curl openrc
+
+# Setup Docker service to start (though we are using host docker socket)
+# This might not be needed if only using docker cli with host socket.
+# RUN rc-update add docker boot && touch /run/openrc/softlevel
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the scheduling script into the container
+COPY run_scrapers.sh /usr/local/bin/run_scrapers.sh
+RUN chmod +x /usr/local/bin/run_scrapers.sh
+
+# Command to run the script in a loop
+# Log output to stdout/stderr to be picked up by `docker-compose logs`
+CMD ["sh", "-c", "echo 'Scheduler starting...' && while true; do echo \"Scheduler: Cycle start at $(date)\"; bash /usr/local/bin/run_scrapers.sh; echo \"Scheduler: Cycle end at $(date). Sleeping for 3600 seconds (1 hour).\"; sleep 3600; done"]

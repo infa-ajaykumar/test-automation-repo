@@ -1,5 +1,11 @@
 const puppeteer = require('puppeteer');
 const amqp = require('amqplib');
+
+// Note: For authenticated proxies with Puppeteer (e.g., user:pass@host:port),
+// simple --proxy-server arg might not work. It often requires page.authenticate()
+// or using a library like puppeteer-extra with puppeteer-extra-plugin-proxy.
+const PROXY_SERVER_ENV = process.env.PUPPETEER_PROXY_SERVER; // e.g., 'http://proxy-ip:port' or 'socks5://proxy-ip:port'
+
 const RABBITMQ_URL = 'amqp://user:password@rabbitmq:5672'; // Matches docker-compose
 const QUEUE_NAME = 'property_listings_raw';
 
@@ -45,8 +51,9 @@ async function scrapeFacebookMarketplace() {
             '--ignore-certifcate-errors',
             '--ignore-certifcate-errors-spki-list',
             '--user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36"',
-            '--disable-blink-features=AutomationControlled'
-        ]
+            '--disable-blink-features=AutomationControlled',
+            PROXY_SERVER_ENV ? `--proxy-server=${PROXY_SERVER_ENV}` : '',
+        ].filter(Boolean) // Filter out empty strings from args list
     });
 
     const page = await browser.newPage();

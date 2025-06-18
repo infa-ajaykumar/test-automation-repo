@@ -1,3 +1,5 @@
+import os
+
 # Scrapy settings for craigslist_scraper project
 #
 # For simplicity, this file contains only settings considered important or
@@ -52,9 +54,10 @@ CONCURRENT_REQUESTS_PER_DOMAIN = 2 # Default is 8, too high for CL usually
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
-#DOWNLOADER_MIDDLEWARES = {
-#    "craigslist_scraper.middlewares.CraigslistScraperDownloaderMiddleware": 543,
-#}
+DOWNLOADER_MIDDLEWARES = {
+   'craigslist_scraper.middlewares.RandomProxyMiddleware': 610,
+   'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 750, # Scrapy's default
+}
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
@@ -89,6 +92,17 @@ RABBITMQ_USER = 'user' # Ensure these match your docker-compose RabbitMQ setup
 RABBITMQ_PASS = 'password'
 
 LOG_LEVEL = 'INFO' # Or 'DEBUG' for more verbose output during development
+
+# --- Proxy Settings (Basic) ---
+# Read comma-separated proxy list from environment variable
+http_proxies_env = os.environ.get('HTTP_PROXIES_LIST')
+if http_proxies_env:
+    HTTP_PROXIES = [proxy.strip() for proxy in http_proxies_env.split(',')]
+else:
+    # Default list if environment variable is not set (can be empty)
+    HTTP_PROXIES = [
+        # 'http://your_default_proxy1:port',
+    ]
 
 # Enable and configure HTTP caching (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html#httpcache-middleware-settings

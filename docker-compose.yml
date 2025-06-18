@@ -53,6 +53,21 @@ services:
       timeout: 10s
       retries: 5
 
+  redis_cache:
+    image: redis:7.2-alpine
+    container_name: redis_cache
+    ports:
+      - "6379:6379"
+    networks:
+      - realestate_aggregator_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - redis_data:/data
+
   craigslist_scraper:
     build:
       context: ./scrapers/python_scrapy
@@ -63,6 +78,8 @@ services:
         condition: service_started
     networks:
       - realestate_aggregator_network
+    environment:
+      - HTTP_PROXIES_LIST= # e.g., http://proxy1:port,http://user:pass@proxy2:port
 
   facebook_scraper:
     build:
@@ -74,6 +91,8 @@ services:
         condition: service_started
     networks:
       - realestate_aggregator_network
+    environment:
+      - PUPPETEER_PROXY_SERVER= # e.g., http://your_single_proxy_for_facebook:port
 
   data_processing_service:
     build:
@@ -102,6 +121,54 @@ services:
       - ELASTICSEARCH_PORT=9200
       - ELASTICSEARCH_INDEX_NAME=property_listings
 
+  backend_api_service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend_api_service
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+      redis_cache:
+        condition: service_healthy
+    networks:
+      - realestate_aggregator_network
+    environment:
+      - DATABASE_URL=postgresql://dbuser:dbpassword@postgres_db:5432/realestate_listings
+      - ELASTICSEARCH_HOST=elasticsearch
+      - ELASTICSEARCH_PORT=9200
+      - ELASTICSEARCH_INDEX_NAME=property_listings
+      - REDIS_HOST=redis_cache
+      - REDIS_PORT=6379
+
+  frontend_service:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend_service
+    ports:
+      - "3000:80"
+    networks:
+      - realestate_aggregator_network
+    depends_on:
+      - backend_api_service
+
+  scheduler:
+    build:
+      context: ./scheduler
+      dockerfile: Dockerfile.scheduler
+    container_name: scheduler
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./:/app
+    working_dir: /app
+    networks:
+      - realestate_aggregator_network
+
 networks:
   realestate_aggregator_network:
     driver: bridge
@@ -110,3 +177,4 @@ volumes:
   rabbitmq_data:
   postgres_data:
   elasticsearch_data:
+  redis_data:

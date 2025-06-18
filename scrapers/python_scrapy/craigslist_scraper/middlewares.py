@@ -1,100 +1,52 @@
-# Define here the models for your spider middleware
-#
-# See documentation in:
-# https://docs.scrapy.org/en/latest/topics/spider-middleware.html
+import random
+import logging
+from scrapy.exceptions import NotConfigured
 
-from scrapy import signals
+logger = logging.getLogger(__name__)
 
-# useful for handling different item types with a single interface
-from itemadapter import ItemAdapter
-
-
-class CraigslistScraperSpiderMiddleware:
-    # Not all methods need to be defined. If a method is not defined,
-    # scrapy acts as if the spider middleware does not modify the
-    # passed objects.
-
-    @classmethod
-    def from_crawler(cls, crawler):
-        # This method is used by Scrapy to create your spiders.
-        s = cls()
-        crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
-        return s
-
-    def process_spider_input(self, response, spider):
-        # Called for each response that goes through the spider
-        # middleware and into the spider.
-
-        # Should return None or raise an exception.
-        return None
-
-    def process_spider_output(self, response, result, spider):
-        # Called with the results returned from the Spider, after
-        # it has processed the response.
-
-        # Must return an iterable of Request, or item objects.
-        for i in result:
-            yield i
-
-    def process_spider_exception(self, response, exception, spider):
-        # Called when a spider or process_spider_input() method
-        # (from other spider middleware) raises an exception.
-
-        # Should return either None or an iterable of Request or item objects.
-        pass
-
-    async def process_start(self, start):
-        # Called with an async iterator over the spider start() method or the
-        # maching method of an earlier spider middleware.
-        async for item_or_request in start:
-            yield item_or_request
-
-    def spider_opened(self, spider):
-        spider.logger.info("Spider opened: %s" % spider.name)
-
-
-class CraigslistScraperDownloaderMiddleware:
-    # Not all methods need to be defined. If a method is not defined,
-    # scrapy acts as if the downloader middleware does not modify the
-    # passed objects.
+class RandomProxyMiddleware(object):
+    def __init__(self, settings):
+        self.proxies = settings.getlist('HTTP_PROXIES')
+        if not self.proxies:
+            # If no proxies are configured, this middleware will do nothing.
+            # Scrapy will proceed without a proxy or use system-configured proxies if any.
+            logger.info("No HTTP_PROXIES configured. RandomProxyMiddleware will not be active.")
+            # Raise NotConfigured to disable the middleware if no proxies are set.
+            # This is cleaner than letting it run and do nothing.
+            raise NotConfigured("HTTP_PROXIES setting is empty or not found.")
+        else:
+            logger.info(f"RandomProxyMiddleware enabled with {len(self.proxies)} proxies.")
 
     @classmethod
     def from_crawler(cls, crawler):
-        # This method is used by Scrapy to create your spiders.
-        s = cls()
-        crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
-        return s
+        return cls(crawler.settings)
 
     def process_request(self, request, spider):
-        # Called for each request that goes through the downloader
-        # middleware.
+        # This method is called for each request being processed.
+        if not self.proxies: # Should not happen if NotConfigured is raised
+            return
 
-        # Must either:
-        # - return None: continue processing this request
-        # - or return a Response object
-        # - or return a Request object
-        # - or raise IgnoreRequest: process_exception() methods of
-        #   installed downloader middleware will be called
-        return None
+        # Don't override proxy if it's already set (e.g. by another middleware or specific request meta)
+        if 'proxy' in request.meta:
+            logger.debug(f"Proxy already set for {request.url}, not overriding.")
+            return
 
-    def process_response(self, request, response, spider):
-        # Called with the response returned from the downloader.
-
-        # Must either;
-        # - return a Response object
-        # - return a Request object
-        # - or raise IgnoreRequest
-        return response
+        chosen_proxy = random.choice(self.proxies)
+        request.meta['proxy'] = chosen_proxy
+        logger.debug(f"Using proxy {chosen_proxy} for request {request.url}")
 
     def process_exception(self, request, exception, spider):
-        # Called when a download handler or a process_request()
-        # (from other downloader middleware) raises an exception.
+        # Called when a download handler or a process_request() method
+        # (from this or other downloader middleware) raises an exception.
+        proxy = request.meta.get('proxy')
+        if proxy:
+            logger.warning(f"Request {request.url} failed using proxy {proxy}. Exception: {exception}")
+        # Depending on the exception type, you might want to retry with a different proxy,
+        # or temporarily ban the failing proxy. For basic setup, just log.
+        return None # Return None to let other exception handlers process it or Scrapy to fail the request.
 
-        # Must either:
-        # - return None: continue processing this exception
-        # - return a Response object: stops process_exception() chain
-        # - return a Request object: stops process_exception() chain
-        pass
-
-    def spider_opened(self, spider):
-        spider.logger.info("Spider opened: %s" % spider.name)
+# Placeholder for other middlewares if you had them, e.g.:
+# class CraigslistScraperSpiderMiddleware:
+#     ...
+# class CraigslistScraperDownloaderMiddleware:
+#     ...

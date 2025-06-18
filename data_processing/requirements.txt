@@ -3,3 +3,4 @@ geopy
 psycopg2-binary
 elasticsearch>=8.0.0,<9.0.0
 # requests # geopy uses this, so it's an indirect dependency
+pytest
