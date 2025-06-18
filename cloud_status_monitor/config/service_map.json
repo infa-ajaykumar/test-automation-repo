@@ -1,0 +1,26 @@
+{
+  "AWS": {
+    "us-east-1": "tests/aws_us_east_1_tests.py",
+    "eu-west-1": "tests/aws_eu_west_1_tests.py",
+    "global": "tests/aws_global_tests.py"
+  },
+  "Azure": {
+    "eastus": "tests/azure_eastus_tests.py",
+    "westus": "tests/azure_westus_tests.py"
+  },
+  "GCP": {
+    "us-central1": "tests/gcp_us_central1_tests.py"
+  },
+  "Oracle": {
+    "us-ashburn-1": "tests/oracle_us_ashburn_1_tests.py"
+  },
+  "JFrog": {
+    "platform": "tests/jfrog_platform_tests.py"
+  },
+  "Artifactory": {
+    "cloudrepo": "tests/artifactory_cloudrepo_tests.py"
+  },
+  "MongoDB": {
+    "atlas": "tests/mongodb_atlas_tests.py"
+  }
+}
