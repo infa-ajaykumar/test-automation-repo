@@ -1,0 +1,21 @@
+{
+  "name": "facebook-scraper",
+  "version": "1.0.0",
+  "description": "Scrapes Facebook Marketplace for property listings.",
+  "main": "scraper.js",
+  "scripts": {
+    "start": "node scraper.js"
+  },
+  "keywords": [
+    "puppeteer",
+    "scraper",
+    "facebook",
+    "rabbitmq"
+  ],
+  "author": "AI Agent",
+  "license": "ISC",
+  "dependencies": {
+    "puppeteer": "^22.6.0",
+    "amqplib": "^0.10.3"
+  }
+}

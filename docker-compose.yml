@@ -1,0 +1,112 @@
+version: '3.8'
+services:
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq/
+    networks:
+      - realestate_aggregator_network
+    environment:
+      - RABBITMQ_DEFAULT_USER=user
+      - RABBITMQ_DEFAULT_PASS=password
+
+  postgres_db:
+    image: postgis/postgis:16-3.4
+    container_name: postgres_db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: dbuser
+      POSTGRES_PASSWORD: dbpassword
+      POSTGRES_DB: realestate_listings
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database_setup/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - realestate_aggregator_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dbuser -d realestate_listings"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.3
+    container_name: elasticsearch
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - realestate_aggregator_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -vq '\"status\":\"red\"'"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  craigslist_scraper:
+    build:
+      context: ./scrapers/python_scrapy
+      dockerfile: Dockerfile
+    container_name: craigslist_scraper
+    depends_on:
+      rabbitmq:
+        condition: service_started
+    networks:
+      - realestate_aggregator_network
+
+  facebook_scraper:
+    build:
+      context: ./scrapers/nodejs_puppeteer
+      dockerfile: Dockerfile
+    container_name: facebook_scraper
+    depends_on:
+      rabbitmq:
+        condition: service_started
+    networks:
+      - realestate_aggregator_network
+
+  data_processing_service:
+    build:
+      context: ./data_processing
+      dockerfile: Dockerfile
+    container_name: data_processing_service
+    depends_on:
+      rabbitmq:
+        condition: service_started
+      postgres_db:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - realestate_aggregator_network
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_USER=user
+      - RABBITMQ_PASS=password
+      - GEOPY_USER_AGENT=RealEstateAggregatorBot/1.0 (your.email@example.com) # USER SHOULD UPDATE THIS
+      - POSTGRES_HOST=postgres_db
+      - POSTGRES_DB=realestate_listings
+      - POSTGRES_USER=dbuser
+      - POSTGRES_PASSWORD=dbpassword
+      - ELASTICSEARCH_HOST=elasticsearch
+      - ELASTICSEARCH_PORT=9200
+      - ELASTICSEARCH_INDEX_NAME=property_listings
+
+networks:
+  realestate_aggregator_network:
+    driver: bridge
+
+volumes:
+  rabbitmq_data:
+  postgres_data:
+  elasticsearch_data:
